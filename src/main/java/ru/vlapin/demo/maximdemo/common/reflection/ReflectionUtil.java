@@ -1,26 +1,22 @@
-package ru.vlapin.demo.maximdemo.common;
+package ru.vlapin.demo.maximdemo.common.reflection;
+
+import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterators.spliteratorUnknownSize;
+import static java.util.stream.StreamSupport.stream;
 
 import io.vavr.CheckedFunction1;
 import io.vavr.CheckedFunction2;
-import io.vavr.Function1;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Enumeration;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
-@UtilityClass
-public class ReflectionUtil {
+public interface ReflectionUtil {
 
-  public final Function<String, Class<?>> CLASS_FOR_NAME = CheckedFunction1.<String, Class<?>>of(Class::forName).unchecked();
+  Function<String, Class<?>> CLASS_FOR_NAME = CheckedFunction1.<String, Class<?>>of(Class::forName).unchecked();
 
   /**
    * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
@@ -28,26 +24,19 @@ public class ReflectionUtil {
    * @param packageName The base package
    * @return The classes
    */
-  @SneakyThrows
-  public Stream<Class<?>> getClasses(String packageName) {
-
-//    CheckedFunction2.of(ClassLoader::getResources)
-//        .unchecked()
-
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    assert classLoader != null;
-    String path = packageName.replace('.', '/');
-    val resources = classLoader.getResources(path);
-    val dirs = new ArrayList<File>();
-    while (resources.hasMoreElements()) {
-      URL resource = resources.nextElement();
-      dirs.add(new File(resource.getFile()));
-    }
-    val classes = new ArrayList<Class<?>>();
-    for (File directory : dirs) {
-      classes.addAll(findClasses(directory, packageName).collect(Collectors.toSet()));
-    }
-    return classes.stream();
+  static Stream<Class<?>> getClasses(String packageName) {
+    return CheckedFunction2.of(ClassLoader::getResources)
+               .andThen(Enumeration::asIterator)
+               .andThen(urlIterator -> spliteratorUnknownSize(urlIterator, ORDERED))
+               .andThen(urlSpliterator -> stream(urlSpliterator, false))
+               .reversed()
+               .apply(packageName.replace('.', '/'))
+               .compose(Thread::getContextClassLoader)
+               .unchecked()
+               .apply(Thread.currentThread())
+               .map(URL::getFile)
+               .map(File::new)
+               .flatMap(directory -> findClasses(directory, packageName));
   }
 
   /**
@@ -57,7 +46,7 @@ public class ReflectionUtil {
    * @param packageName The package name for classes found inside the base directory
    * @return The classes
    */
-  private Stream<Class<?>> findClasses(File directory, String packageName) {
+  private static Stream<Class<?>> findClasses(File directory, String packageName) {
     return Stream.of(directory)
                .filter(File::exists)
                .map(File::listFiles)
@@ -68,7 +57,7 @@ public class ReflectionUtil {
   }
 
   @NotNull
-  private Stream<Class<?>> findClass(String packageName, File file) {
+  private static Stream<Class<?>> findClass(String packageName, File file) {
     return Stream.of(file.getName())
                .filter(fileName -> fileName.endsWith(".class"))
                .map(fileName -> fileName.substring(0, fileName.length() - 6))

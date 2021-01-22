@@ -1,9 +1,7 @@
-package ru.vlapin.demo.maximdemo.common;
+package ru.vlapin.demo.maximdemo.common.reflection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Objects;
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ReflectionUtilTest {
@@ -11,17 +9,11 @@ class ReflectionUtilTest {
   @Test
   @SneakyThrows
   void getClasses() {
-    assertThat(ReflectionUtil.getClasses("ru.vlapin.demo.maximdemo.common").filter(Objects::nonNull))
+    Assertions.assertThat(ReflectionUtil.getClasses("ru.vlapin.demo.maximdemo.common.reflection"))
         .isNotNull()
-        .hasSize(8)
+        .hasSize(2)
         .containsExactlyInAnyOrder(
-            AnnotationUtilsTest.A.class,
-            AnnotationUtilsTest.MyDeepAnnotation.class,
-            AnnotationUtilsTest.MyAnnotation.class,
-            AnnotationUtilsTest.class,
             ReflectionUtilTest.class,
-            ButtonExample.class,
-            AnnotationUtils.class,
             ReflectionUtil.class
         );
   }

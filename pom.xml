@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-parent</artifactId>
-    <version>Hoxton.SR9</version>
+    <version>2020.0.0</version>
   </parent>
 
   <groupId>ru.vlapin.demo</groupId>
@@ -24,21 +25,21 @@
 
     <!--region Libs-->
     <vavr.version>0.10.3</vavr.version>
+    <!--<vavr.version>1.0.0-alpha-3</vavr.version>-->
     <lombok.version>1.18.16</lombok.version>
-    <checker.version>3.8.0</checker.version>
+    <checker.version>3.9.1</checker.version>
     <annotations.version>20.1.0</annotations.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
     <spotbugs.version>4.2.0</spotbugs.version>
-    <error_prone_annotations.version>2.4.0</error_prone_annotations.version>
-    <springdoc-openapi.version>1.5.0</springdoc-openapi.version>
+    <error_prone_annotations.version>2.5.1</error_prone_annotations.version>
+    <springdoc-openapi.version>1.5.2</springdoc-openapi.version>
     <!--endregion-->
 
     <!--region Test-libs-->
-    <testcontainers.version>1.15.0</testcontainers.version>
+    <testcontainers.version>1.15.1</testcontainers.version>
     <!--endregion-->
 
     <!--region Plugins-->
-    <maven.compiler.executable>true</maven.compiler.executable>
     <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
     <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
     <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
@@ -46,10 +47,10 @@
     <sonar-maven-plugin.version>2.7.1</sonar-maven-plugin.version>
     <spotbugs-maven-plugin.version>4.0.0</spotbugs-maven-plugin.version>
     <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
+
     <lombok-maven-plugin.version>1.18.16.0</lombok-maven-plugin.version>
-    <lombok.addOutputDirectory>false</lombok.addOutputDirectory>
-    <lombok.sourceDirectory>${project.basedir}/src/main/java</lombok.sourceDirectory>
-    <lombok.testSourceDirectory>${project.basedir}/src/test/java</lombok.testSourceDirectory>
+    <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+    <openapi-generator-maven-plugin.version>5.0.0</openapi-generator-maven-plugin.version>
     <!--endregion-->
 
   </properties>
@@ -111,13 +112,19 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <optional>true</optional>
-      <scope>provided</scope>
+      <!--<optional>true</optional>-->
+      <!--<scope>provided</scope>-->
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+      <!--<exclusions>-->
+      <!--  <exclusion>-->
+      <!--    <groupId>org.junit.vintage</groupId>-->
+      <!--    <artifactId>junit-vintage-engine</artifactId>-->
+      <!--  </exclusion>-->
+      <!--</exclusions>-->
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -180,6 +187,20 @@
         <groupId>io.vavr</groupId>
         <artifactId>vavr</artifactId>
         <version>${vavr.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+        <optional>true</optional>
+        <exclusions>
+          <exclusion>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!--region Common Annotations (CheckerFramework, JetBrains, SpotBugs, ErrorProne)-->
@@ -393,6 +414,36 @@
           <artifactId>lombok-maven-plugin</artifactId>
           <version>${lombok-maven-plugin.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>properties-maven-plugin</artifactId>
+          <version>${properties-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <phase>initialize</phase>
+              <goals>
+                <goal>read-project-properties</goal>
+              </goals>
+              <configuration>
+                <files>
+                  <file>${basedir}/maven.properties</file>
+                </files>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.openapitools</groupId>
+          <artifactId>openapi-generator-maven-plugin</artifactId>
+          <version>${openapi-generator-maven-plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -431,6 +482,14 @@
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
