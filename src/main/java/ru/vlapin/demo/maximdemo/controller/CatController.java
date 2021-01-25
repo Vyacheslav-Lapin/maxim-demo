@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.vlapin.demo.maximdemo.model.Cat;
 import ru.vlapin.demo.maximdemo.service.AnnotationBasedImmutablePropertiesPlaceholderExample;
 
+//@Lazy(false)
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api")

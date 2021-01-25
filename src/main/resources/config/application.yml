@@ -6,3 +6,7 @@ mail:
 
 server:
   port: 80
+
+#spring:
+#  main:
+#    lazy-initialization: true
