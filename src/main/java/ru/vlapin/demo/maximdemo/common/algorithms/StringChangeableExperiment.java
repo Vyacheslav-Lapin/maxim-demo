@@ -4,13 +4,15 @@ import java.util.Arrays;
 import lombok.SneakyThrows;
 import lombok.val;
 
+@SuppressWarnings("unchecked")
 public class StringChangeableExperiment {
 
   @SneakyThrows
+  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
     String s = "abcdef";
 
-    val value= s.getClass().getDeclaredField("value");
+    val value = s.getClass().getDeclaredField("value");
     value.setAccessible(true);
     final byte[] bytes = (byte[]) value.get(s);
     System.out.println("value.get(s) = " + Arrays.toString(bytes));
@@ -28,5 +30,12 @@ public class StringChangeableExperiment {
     String s2 = "abcdef";
     System.out.println("s2 = " + s2);
     System.out.println("s = " + s);
+
+    try {
+      val aClass = Class.forName("io.vavr.collection.HashSet");
+    } catch (ClassNotFoundException e) {
+//      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 }
