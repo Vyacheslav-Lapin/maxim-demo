@@ -4,13 +4,18 @@ import lombok.val;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import ru.vlapin.demo.maximdemo.common.autowiring.B;
 
 @SpringBootApplication
 public class MaximDemoApplication {
 
   public static void main(String[] args) {
+
     val context = SpringApplication.run(MaximDemoApplication.class, args);
-//    val beanDefinitionNames = Set.of(context.getBeanDefinitionNames());
+
+    System.out.println(context.getBean(B.class).getA1().getS());
+
+    //    val beanDefinitionNames = Set.of(context.getBeanDefinitionNames());
 
 //    System.out.println("context.getBeanDefinitionNames() = " + beanDefinitionNames);
 //    System.out.println("context.getBeanDefinitionCount() = " + context.getBeanDefinitionCount());
